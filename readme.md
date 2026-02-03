@@ -17,7 +17,7 @@ This application scrapes the "Kohler Report" section of ABC News and generates a
 Grab the latest binary here: https://github.com/arran4/abc-kohler-report-rss/releases/
 
 #### Install and build as user (User)
-Install go 1.23+
+Install go 1.24+
 
 Run `go install`:
 ```bash

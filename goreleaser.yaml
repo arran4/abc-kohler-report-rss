@@ -7,15 +7,15 @@ builds:
     dir: cmd/abckohlerreportrss
     env:
       - CGO_ENABLED=0
-#  -
-#    id: "abckohlerreportrss-cgi"
-#    binary: "abckohlerreportrss-cgi"
-#    dir: cmd/abckohlerreportrss-cgi
-#    env:
-#      - CGO_ENABLED=0
-#    goos: [linux]
-#    goarch: [amd64, arm64]
-#    flags: ["-tags=netgo", "-trimpath"]
+  -
+    id: "abckohlerreportrss-cgi"
+    binary: "abckohlerreportrss-cgi"
+    dir: cmd/abckohlerreportrss-cgi
+    env:
+      - CGO_ENABLED=0
+    goos: [linux]
+    goarch: [amd64, arm64]
+    flags: ["-tags=netgo", "-trimpath"]
 archives:
   -
     format_overrides:
@@ -37,7 +37,7 @@ nfpms:
     homepage: https://github.com/arran4/
     maintainer: Arran Ubels <arran@ubels.com.au>
     description: NA
-    license: Private
+    license: AGPL-3.0
     formats:
       - apk
       - deb
