@@ -11,7 +11,7 @@ import (
 
 func main() {
 	log.Fatal(cgi.Serve(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err, rss := abcrss.FetchAndParseToRSS()
+		rss, err := abcrss.FetchAndParseToRSS()
 		if err != nil {
 			http.Error(w, "Failed to fetch and parse RSS", http.StatusInternalServerError)
 			return

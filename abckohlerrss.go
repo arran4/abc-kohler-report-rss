@@ -397,10 +397,10 @@ type ABCJSON struct {
 
 const BaseURL = "https://www.abc.net.au"
 
-func FetchAndParseToRSS() (error, RSS) {
+func FetchAndParseToRSS() (RSS, error) {
 	resp, err := http.Get(BaseURL + "/news/programs/kohler-report")
 	if err != nil {
-		return fmt.Errorf("fetching news to rss: %v", err), RSS{}
+		return RSS{}, fmt.Errorf("fetching news to rss: %v", err)
 	}
 	defer func(Body io.ReadCloser) {
 		if err := Body.Close(); err != nil {
@@ -409,12 +409,12 @@ func FetchAndParseToRSS() (error, RSS) {
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("status code: %v", resp.Status), RSS{}
+		return RSS{}, fmt.Errorf("status code: %v", resp.Status)
 	}
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return fmt.Errorf("parsing news to rss: %v", err), RSS{}
+		return RSS{}, fmt.Errorf("parsing news to rss: %v", err)
 	}
 
 	rss := RSS{
@@ -431,12 +431,12 @@ func FetchAndParseToRSS() (error, RSS) {
 	})
 
 	if jsonData == "" {
-		return fmt.Errorf("no JSON data found"), RSS{}
+		return RSS{}, fmt.Errorf("no JSON data found")
 	}
 
 	var abcData ABCJSON
 	if err := json.Unmarshal([]byte(jsonData), &abcData); err != nil {
-		return fmt.Errorf("parsing JSON data: %v", err), RSS{}
+		return RSS{}, fmt.Errorf("parsing JSON data: %v", err)
 	}
 
 	// Extract feed header information
@@ -491,5 +491,5 @@ func FetchAndParseToRSS() (error, RSS) {
 		}
 	}
 
-	return nil, rss
+	return rss, nil
 }
