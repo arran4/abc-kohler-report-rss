@@ -271,6 +271,7 @@ jobs:
           EXPECT_MAKE_C: 'false'
           EXPECT_DOCKER: 'false'
           EXPECT_GORELEASER: 'true'
+          EXPECT_JAVA: 'false'
         run: |
           set -euo pipefail
           # Keep this minimal: most language choices should be decided at workflow install/customization time.
@@ -284,6 +285,7 @@ jobs:
           echo "has_make_c=${EXPECT_MAKE_C:-false}" >> "$GITHUB_OUTPUT"
           echo "has_docker=${EXPECT_DOCKER:-false}" >> "$GITHUB_OUTPUT"
           echo "has_goreleaser=${EXPECT_GORELEASER:-false}" >> "$GITHUB_OUTPUT"
+          echo "has_java=${EXPECT_JAVA:-false}" >> "$GITHUB_OUTPUT"
 
           ([[ -d test ]] || [[ -d tests ]] || [[ -f pubspec.yaml ]]) && echo "has_dart_or_flutter_tests=true" >> "$GITHUB_OUTPUT" || echo "has_dart_or_flutter_tests=false" >> "$GITHUB_OUTPUT"
           ([[ -d packaging ]] || [[ -d pkg ]] || [[ -f debian/control ]]) && echo "has_packaging=true" >> "$GITHUB_OUTPUT" || echo "has_packaging=false" >> "$GITHUB_OUTPUT"
@@ -392,7 +394,7 @@ jobs:
     if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
@@ -611,10 +613,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
+      - name: Determine Dockerfile
+        id: dockerfile
+        run: |
+          if [ -f Dockerfile.goreleaser ]; then
+            echo "file=Dockerfile.goreleaser" >> "$GITHUB_OUTPUT"
+          else
+            echo "file=Dockerfile" >> "$GITHUB_OUTPUT"
+          fi
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ hashFiles('Dockerfile.goreleaser') != '' && 'Dockerfile.goreleaser' || 'Dockerfile' }}
+          file: ${{ steps.dockerfile.outputs.file }}
           push: false
           tags: ghcr.io/${{ github.repository }}:ci-${{ github.run_id }}
 
@@ -630,6 +640,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
+      - name: Determine Dockerfile
+        id: dockerfile
+        run: |
+          if [ -f Dockerfile.goreleaser ]; then
+            echo "file=Dockerfile.goreleaser" >> "$GITHUB_OUTPUT"
+          else
+            echo "file=Dockerfile" >> "$GITHUB_OUTPUT"
+          fi
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
