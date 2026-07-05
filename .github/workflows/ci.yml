@@ -136,39 +136,6 @@ jobs:
           echo "is_monthly=$is_monthly" >> "$GITHUB_OUTPUT"
           echo "is_nightly=$is_nightly" >> "$GITHUB_OUTPUT"
 
-  route:
-    name: Event Router
-    runs-on: ubuntu-latest
-    outputs:
-      run_code_checks: ${{ steps.decide.outputs.run_code_checks }}
-      run_build: ${{ steps.decide.outputs.run_build }}
-      run_release: ${{ steps.decide.outputs.run_release }}
-    steps:
-      - id: decide
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" ]]; then
-            echo "run_code_checks=false" >> "$GITHUB_OUTPUT"
-            echo "run_build=false" >> "$GITHUB_OUTPUT"
-            echo "run_release=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "run_code_checks=true" >> "$GITHUB_OUTPUT"
-
-          if [[ "${{ github.ref }}" == refs/tags/* || ("${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.mode }}" != "lint-fix") ]]; then
-            echo "run_build=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run_build=false" >> "$GITHUB_OUTPUT"
-          fi
-
-          if [[ "${{ github.ref }}" == refs/tags/v* || ("${{ github.event_name }}" == "workflow_dispatch" && startsWith("${{ inputs.mode }}", "release-")) ]]; then
-            echo "run_release=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run_release=false" >> "$GITHUB_OUTPUT"
-          fi
-
   prepare-release-tag:
     name: Prepare release tag
     needs: [route]
@@ -279,6 +246,7 @@ jobs:
       has_make_c: ${{ steps.detect.outputs.has_make_c }}
       has_docker: ${{ steps.detect.outputs.has_docker }}
       has_goreleaser: ${{ steps.detect.outputs.has_goreleaser }}
+      has_java: ${{ steps.detect.outputs.has_java }}
       has_dart_or_flutter_tests: ${{ steps.detect.outputs.has_dart_or_flutter_tests }}
       has_packaging: ${{ steps.detect.outputs.has_packaging }}
       has_hugo: ${{ steps.detect.outputs.has_hugo }}
@@ -298,6 +266,7 @@ jobs:
           EXPECT_MAKE_C: 'false'
           EXPECT_DOCKER: 'false'
           EXPECT_GORELEASER: 'true'
+          EXPECT_JAVA: 'false'
         run: |
           set -euo pipefail
           # Keep this minimal: most language choices should be decided at workflow install/customization time.
@@ -311,6 +280,7 @@ jobs:
           echo "has_make_c=${EXPECT_MAKE_C:-false}" >> "$GITHUB_OUTPUT"
           echo "has_docker=${EXPECT_DOCKER:-false}" >> "$GITHUB_OUTPUT"
           echo "has_goreleaser=${EXPECT_GORELEASER:-false}" >> "$GITHUB_OUTPUT"
+          echo "has_java=${EXPECT_JAVA:-false}" >> "$GITHUB_OUTPUT"
 
           ([[ -d test ]] || [[ -d tests ]] || [[ -f pubspec.yaml ]]) && echo "has_dart_or_flutter_tests=true" >> "$GITHUB_OUTPUT" || echo "has_dart_or_flutter_tests=false" >> "$GITHUB_OUTPUT"
           ([[ -d packaging ]] || [[ -d pkg ]] || [[ -f debian/control ]]) && echo "has_packaging=true" >> "$GITHUB_OUTPUT" || echo "has_packaging=false" >> "$GITHUB_OUTPUT"
@@ -351,7 +321,7 @@ jobs:
   java-build-test:
     name: Java build/test
     needs: [route, discover]
-    if: ${{ needs.route.outputs.run_code_checks == 'true' && hashFiles('pom.xml') != '' }}
+    if: ${{ needs.discover.outputs.has_java == 'true' && needs.route.outputs.run_code_checks == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
