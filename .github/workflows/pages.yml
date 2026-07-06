@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir -p public/rss
           # Generate index.html from readme.md using a Go-based markdown to HTML converter
-          go run github.com/gomarkdown/mdtohtml@latest -page readme.md public/index.html
+          go run github.com/arran4/fork-mdtohtml@latest -page readme.md public/index.html
           sed -i 's/<title>.*<\/title>/<title>ABC Kohler Report RSS<\/title>/i' public/index.html
           # Generate RSS feed
           go run ./cmd/abckohlerreportrss -output public/rss/abckohlerreportrss.xml
