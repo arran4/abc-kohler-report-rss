@@ -31,14 +31,12 @@ jobs:
           go-version-file: 'go.mod'
           check-latest: true
 
-      - name: Install Pandoc
-        run: sudo apt-get update && sudo apt-get install -y pandoc
-
       - name: Build site directory
         run: |
           mkdir -p public/rss
-          # Generate index.html from readme.md
-          pandoc readme.md -o public/index.html -s --metadata title="ABC Kohler Report RSS"
+          # Generate index.html from readme.md using a Go-based markdown to HTML converter
+          go run github.com/arran4/fork-mdtohtml@latest -page readme.md public/index.html
+          sed -i 's/<title>.*<\/title>/<title>ABC Kohler Report RSS<\/title>/i' public/index.html
           # Generate RSS feed
           go run ./cmd/abckohlerreportrss -output public/rss/abckohlerreportrss.xml
 
