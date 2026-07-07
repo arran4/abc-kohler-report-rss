@@ -184,6 +184,7 @@ jobs:
             release-alpha) level="patch"; suffix="alpha" ;;
             *) echo "Unsupported release mode: $MODE"; exit 1 ;;
           esac
+          git fetch --tags --force
           if command -v git-tag-inc >/dev/null 2>&1; then
             # git-tag-inc uses positional commands (patch/major/minor/test/rc...)
             # and NOT flag forms like -patch.
@@ -193,7 +194,6 @@ jobs:
             next_tag=$(git-tag-inc "${args[@]}")
           else
             # Fallback implementation when git-tag-inc is not available.
-            git fetch --tags --force
             latest=$(git tag -l 'v*' | sed 's/^v//' | sort -V | tail -n 1)
             [[ -z "$latest" ]] && latest='0.0.0'
 
