@@ -18,9 +18,17 @@ builds:
     flags: ["-tags=netgo", "-trimpath"]
 archives:
   -
+    id: default
+    builds:
+      - abckohlerreportrss
     format_overrides:
       - goos: windows
         format: zip
+  -
+    id: cgi
+    builds:
+      - abckohlerreportrss-cgi
+    name_template: '{{ .ProjectName }}-cgi_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 checksum:
   name_template: 'checksums.txt'
 snapshot:
