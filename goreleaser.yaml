@@ -21,21 +21,23 @@ archives:
     id: default
     ids:
       - abckohlerreportrss
+    allow_different_binary_count: true
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["zip"]
   -
     id: cgi
     ids:
       - abckohlerreportrss-cgi
     name_template: '{{ .ProjectName }}-cgi_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    allow_different_binary_count: true
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["zip"]
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
