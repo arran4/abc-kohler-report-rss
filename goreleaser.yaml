@@ -19,21 +19,19 @@ builds:
 archives:
   -
     id: default
-    ids:
+    builds:
       - abckohlerreportrss
-    allow_different_binary_count: true
     format_overrides:
       - goos: windows
         formats: ["zip"]
   -
     id: cgi
-    ids:
+    builds:
       - abckohlerreportrss-cgi
     name_template: '{{ .ProjectName }}-cgi_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
-    allow_different_binary_count: true
     format_overrides:
       - goos: windows
-        formats: ["zip"]
+        formats: ["none"]
 checksum:
   name_template: 'checksums.txt'
 snapshot:
