@@ -19,23 +19,23 @@ builds:
 archives:
   -
     id: default
-    ids:
+    builds:
       - abckohlerreportrss
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["zip"]
   -
     id: cgi
-    ids:
+    builds:
       - abckohlerreportrss-cgi
     name_template: '{{ .ProjectName }}-cgi_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
     format_overrides:
       - goos: windows
-        format: zip
+        formats: ["none"]
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
