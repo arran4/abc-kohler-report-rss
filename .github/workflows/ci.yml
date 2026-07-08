@@ -554,6 +554,10 @@ jobs:
         # sed -i -E "s/(project\([^ ]+ VERSION )[^ )]+/\1$NEXT_VERSION/" CMakeLists.txt
 
         git add -A
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+          exit 0
+        fi
         git commit -m "Prepare next development iteration $NEXT_VERSION"
         git push -u origin "$BRANCH"
         gh pr create --title "Prepare next development iteration $NEXT_VERSION" --body "Automated PR for next iteration." --base main --head "$BRANCH"
