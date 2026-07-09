@@ -330,12 +330,12 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         set -euo pipefail
-        git diff --quiet && { echo "No fmt changes"; exit 0; }
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         BRANCH="ci/gofmt/${{ github.run_id }}"
         git checkout -b "$BRANCH"
         git add -A
+        if git diff --staged --quiet; then echo "No fmt changes"; exit 0; fi
         git commit -m "ci: go fmt"
         git push origin "$BRANCH"
         gh pr create --title "ci: go fmt" --body "Automated go fmt from manual dispatch." --base main --head "$BRANCH" --label "ci-autofix"
@@ -367,11 +367,6 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        if git diff --quiet; then
-          echo "No changes; exiting."
-          exit 0
-        fi
-
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -380,6 +375,12 @@ jobs:
 
         git checkout -b "$BRANCH"
         git add -A
+
+        if git diff --staged --quiet; then
+          echo "No changes; exiting."
+          exit 0
+        fi
+
         git commit -m "ci: automated formatting fixes"
         git push origin "$BRANCH"
 
