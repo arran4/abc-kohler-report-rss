@@ -335,7 +335,7 @@ jobs:
         BRANCH="ci/gofmt/${{ github.run_id }}"
         git checkout -b "$BRANCH"
         git add -A
-        if git diff --staged --quiet; then echo "No fmt changes"; exit 0; fi
+        if [ -z "$(git status --porcelain)" ]; then echo "No fmt changes"; exit 0; fi
         git commit -m "ci: go fmt"
         git push origin "$BRANCH"
         gh pr create --title "ci: go fmt" --body "Automated go fmt from manual dispatch." --base main --head "$BRANCH" --label "ci-autofix"
@@ -376,7 +376,7 @@ jobs:
         git checkout -b "$BRANCH"
         git add -A
 
-        if git diff --staged --quiet; then
+        if [ -z "$(git status --porcelain)" ]; then
           echo "No changes; exiting."
           exit 0
         fi
@@ -555,7 +555,7 @@ jobs:
         # sed -i -E "s/(project\([^ ]+ VERSION )[^ )]+/\1$NEXT_VERSION/" CMakeLists.txt
 
         git add -A
-        if git diff --staged --quiet; then
+        if [ -z "$(git status --porcelain)" ]; then
           echo "No changes to commit"
           exit 0
         fi
