@@ -32,11 +32,12 @@ jobs:
           check-latest: true
 
       - name: Build site directory
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p public/rss
           # Generate index.html from readme.md using a Go-based markdown to HTML converter
-          git clone https://github.com/arran4/fork-mdtohtml.git /tmp/fork-mdtohtml
-          (cd /tmp/fork-mdtohtml && go build -o /tmp/mdtohtml .)
+          gh release download -R arran4/fork-mdtohtml -p "*linux_amd64.tar.gz" -O - | tar xvz -C /tmp
           /tmp/mdtohtml readme.md
           echo '<!DOCTYPE html><html><head><title>ABC Kohler Report RSS</title></head>' > public/index.html
           cat readme.html >> public/index.html
