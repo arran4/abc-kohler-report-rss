@@ -21,7 +21,6 @@ archives:
     id: default
     builds:
       - abckohlerreportrss
-    allow_different_binary_count: true
     format_overrides:
       - goos: windows
         formats: ["zip"]
@@ -29,7 +28,6 @@ archives:
     id: cgi
     builds:
       - abckohlerreportrss-cgi
-    allow_different_binary_count: true
     name_template: '{{ .ProjectName }}-cgi_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
     format_overrides:
       - goos: windows
