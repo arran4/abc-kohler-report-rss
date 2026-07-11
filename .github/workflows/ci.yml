@@ -152,7 +152,7 @@ jobs:
       release_tag: ${{ steps.tag.outputs.release_tag }}
       next_version: ${{ steps.tag.outputs.next_version }}
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Setup git-tag-inc
@@ -247,10 +247,10 @@ jobs:
       needs.route.outputs.is_monthly == 'true') }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - uses: gitleaks/gitleaks-action@v2
+    - uses: gitleaks/gitleaks-action@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -261,7 +261,7 @@ jobs:
       'pull_request' && github.event.action != 'closed' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/dependency-review-action@v4
+    - uses: actions/dependency-review-action@v5
 
   golangci:
     name: lint
@@ -269,8 +269,8 @@ jobs:
     if: ${{ needs.route.outputs.run_code_checks == 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
     - name: golangci-lint
@@ -290,8 +290,8 @@ jobs:
         # Add windows-latest/macos-latest only for true platform-specific behavior.
         os: [ubuntu-latest]
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
         cache: true
@@ -305,8 +305,8 @@ jobs:
       github.event.repository.private != true }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
         cache: true
@@ -319,8 +319,8 @@ jobs:
       'lint-fix' && inputs.allow_prs == true }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
     - name: Run go fmt
@@ -347,10 +347,10 @@ jobs:
       'lint-fix' && inputs.allow_prs == true }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4
 
     - name: Setup Go
-      uses: actions/setup-go@v6
+      uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
 
@@ -397,7 +397,7 @@ jobs:
     if: ${{ needs.route.outputs.run_cleanup == 'true' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4
     - env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PARENT_PR: ${{ github.event.pull_request.number }}
@@ -419,10 +419,10 @@ jobs:
       startsWith(inputs.mode, 'release-'))) }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
     - name: Tag commit for release (workflow_dispatch)
@@ -430,7 +430,7 @@ jobs:
         startsWith(inputs.mode, 'release-') }}
       run: git tag -f ${{ needs.prepare-release-tag.outputs.release_tag }}
     - name: Run GoReleaser
-      uses: goreleaser/goreleaser-action@v6
+      uses: goreleaser/goreleaser-action@v7
       with:
         distribution: goreleaser
         version: '~> v2'
@@ -455,7 +455,7 @@ jobs:
       contents: write
       discussions: write
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Sync version source with highest existing tag first
@@ -508,11 +508,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Collect artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: dist-release
     - name: Publish draft GitHub release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         draft: true
         files: dist-release/**
@@ -536,7 +536,7 @@ jobs:
       'release-') || inputs.mode == 'release-test') }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4
     - name: Bump to next version and open PR
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
