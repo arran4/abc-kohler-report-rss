@@ -35,8 +35,8 @@ jobs:
         run: |
           mkdir -p public/rss
           # Generate index.html from readme.md using a Go-based markdown to HTML converter
-          git clone https://github.com/arran4/fork-mdtohtml.git /tmp/fork-mdtohtml
-          (cd /tmp/fork-mdtohtml && go build -o /tmp/mdtohtml .)
+          URL=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/arran4/fork-mdtohtml/releases/latest | jq -r '.assets[] | select(.name | endswith("linux_amd64.tar.gz")) | .browser_download_url')
+          curl -sL "$URL" | tar xvz -C /tmp
           /tmp/mdtohtml readme.md
           echo '<!DOCTYPE html><html><head><title>ABC Kohler Report RSS</title></head>' > public/index.html
           cat readme.html >> public/index.html
