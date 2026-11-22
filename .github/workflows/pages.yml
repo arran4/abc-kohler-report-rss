@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  actions: read
   pages: write
   id-token: write
 
@@ -22,9 +21,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    env:
-      # A rerun shares the run ID but must not reuse an artifact name.
-      PAGES_ARTIFACT_NAME: github-pages-${{ github.run_attempt }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -53,42 +49,13 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Upload artifact
-        id: upload
         uses: actions/upload-pages-artifact@v5
         with:
-          name: ${{ env.PAGES_ARTIFACT_NAME }}
           path: './public'
-          retention-days: 1
-
-      # Upload completion does not guarantee immediate artifact discovery.
-      - name: Wait for Pages artifact visibility
-        timeout-minutes: 3
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EXPECTED_ARTIFACT_ID: ${{ steps.upload.outputs.artifact_id }}
-        run: |
-          if [[ ! "$EXPECTED_ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
-            echo "::error::Pages upload did not return a valid artifact ID"
-            exit 1
-          fi
-          for delay in 5 10 20 30; do
-            sleep "$delay"
-            if visible_id=$(timeout 15s gh api --method GET \
-              "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
-              -f name="$PAGES_ARTIFACT_NAME" \
-              --jq '.artifacts | if length == 1 and .[0].expired == false then .[0].id else empty end'); then
-              if [[ "$visible_id" == "$EXPECTED_ARTIFACT_ID" ]]; then
-                echo "Pages artifact $EXPECTED_ARTIFACT_ID is visible"
-                exit 0
-              fi
-            fi
-            echo "Waiting for Pages artifact $EXPECTED_ARTIFACT_ID ($PAGES_ARTIFACT_NAME)"
-          done
-          echo "::error::Expected Pages artifact $EXPECTED_ARTIFACT_ID did not become uniquely visible"
-          exit 1
+          name: github-pages-${{ github.run_attempt }}
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
         with:
-          artifact_name: ${{ env.PAGES_ARTIFACT_NAME }}
+          artifact_name: github-pages-${{ github.run_attempt }}
